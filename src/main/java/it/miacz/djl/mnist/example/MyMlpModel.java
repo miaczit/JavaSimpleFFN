@@ -33,7 +33,7 @@ public class MyMlpModel {
 
     public void fit(MyMlpTrainingConfig trainingConfig, Dataset trainingDataset, Dataset validatingDataset) throws TranslateException, IOException {
         model.setProperty("Epochs", String.valueOf(trainingConfig.getNumberOfEpochs()));
-        Trainer trainer = model.newTrainer(trainingConfig);
+        Trainer trainer = getModel().newTrainer(trainingConfig);
         trainer.initialize(new Shape(1, multiLayerPerceptronConfig.inputSize()));
         EasyTrain.fit(trainer, trainingConfig.getNumberOfEpochs(), trainingDataset, validatingDataset);
     }
@@ -46,7 +46,8 @@ public class MyMlpModel {
     }
 
     public Classifications predict(Translator<Image, Classifications> translator, Image img) throws TranslateException {
-        var predictor = model.newPredictor(translator);
-        return predictor.predict(img);
+        try(var predictor = getModel().newPredictor(translator)) {
+            return predictor.predict(img);
+        }
     }
 }
